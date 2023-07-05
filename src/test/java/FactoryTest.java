@@ -10,9 +10,10 @@ public class FactoryTest {
         BeanDefinition definition = new BeanDefinition(userClass);
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
         beanFactory.registerDefinition("user",definition);
-        User user = (User) beanFactory.getBean("user");
+        User user = (User) beanFactory.getBean("user","吉米",12);
         System.out.println(user);
         User user2 = (User) beanFactory.getSingleton("user");
         System.out.println(user2);
+
     }
 }

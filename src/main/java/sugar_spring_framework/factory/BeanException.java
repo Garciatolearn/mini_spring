@@ -11,4 +11,5 @@ public class BeanException extends RuntimeException{
     public BeanException(String failed){
         super(failed);
     }
+
 }
