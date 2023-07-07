@@ -1,6 +1,6 @@
-package sugar_spring_framework.factory.support;
+package sugar_spring_framework.beans.factory.support;
 
-import sugar_spring_framework.factory.config.SingletonRegistry;
+import sugar_spring_framework.beans.factory.config.SingletonRegistry;
 
 import java.util.HashMap;
 import java.util.Map;

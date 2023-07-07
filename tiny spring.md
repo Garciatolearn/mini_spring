@@ -121,9 +121,34 @@ DefaultListableBeanFactory 继承了 AbstractAutowireCapableBeanFactory 类，�
 > 本章节的主要以完善实例化操作，增加 InstantiationStrategy 实例化策略接口，并新增了两个实例化类。这部分类的名称与实现方式基本是 Spring 框架的一个缩小版，大家在学习过程中也可以从 Spring 源码找到对应的代码。
 从我们不断的完善增加需求可以看到的，当你的代码结构设计的较为合理的时候，就可以非常容易且方便的进行扩展不同属性的类职责，而不会因为需求的增加导致类结构混乱。所以在我们自己业务需求实现的过程中，也要尽可能的去考虑一个良好的扩展性以及拆分好类的职责。
 
+## 第四章 注入属性和依赖bean注入的实现
+> 在创建对象实例化这我们还缺少什么？其实还缺少一个关于类中是否有属性的问题，如果有类中包含属性那么在实例化的时候就需要把属性信息填充上，这样才是一个完整的对象创建。对于属性的填充不只是 int、Long、String，还包括还没有实例化的对象属性，都需要在 Bean 创建时进行填充操作。不过这里我们暂时不会考虑 Bean 的循环依赖，否则会把整个功能实现撑大，这样新人学习时就把握不住了，待后续陆续先把核心功能实现后，再逐步完善
 
+也就是类的默认属性和依赖注入.
 
+![img](https://bugstack.cn/assets/images/spring/spring-5-01.png)
 
+属性填充得在实例创建之后进行,也就是AbstractAutowireCapableBeanFactory当完成 createBean 中进行 applyPropertyValue;
 
+> 由于我们需要在创建Bean时候填充属性操作，那么就需要在 bean 定义 BeanDefinition 类中，添加 PropertyValues 信息。
+另外是填充属性信息还包括了 Bean 的对象类型，也就是需要再定义一个 BeanReference，里面其实就是一个简单的 Bean 名称，在具体的实例化操作时进行递归创建和填充，与 Spring 源码实现一样。Spring 源码中 BeanReference 是一个接口
 
+![图 5-2](https://bugstack.cn/assets/images/spring/spring-5-02.png)
 
+>由于我们需要在创建Bean时候填充属性操作，那么就需要在 bean 定义 BeanDefinition 类中，添加 PropertyValues 信息。
+另外是填充属性信息还包括了 Bean 的对象类型，也就是需要再定义一个 BeanReference，里面其实就是一个简单的 Bean 名称，在具体的实例化操作时进行递归创建和填充，与 Spring 源码实现一样。Spring 源码中 BeanReference 是一个接口
+
+学到的小tip:
+
+在foreach遍历当中,只要list为空列表和集合长度为0,就不会进入到代码块当中;
+
+---
+我们创建了PropertyValue和PropertyValues目的是为了将注入bean的属性字段收集起来处理 其中PropertyValue的value 包含了基本类型与引用类型,通过反射注入.同时将PropertyValues
+设置为BeanDefinition的属性作为注入时的参数;
+> 这两个类的作用就是创建出一个用于传递类中属性信息的类，因为属性可能会有很多，所以还需要定义一个集合包装下。我们并没有去处理循环依赖的问题，这部分内容较大，后续补充
+
+创建BeanReference是为处理属性当中有bean的存在,为什么不直接通过反射识别出属性名字之后来注入而是通过BeanReference来作为引用注入?
+
+答案是逻辑处理起来很麻烦,而且也不simple,可读性估计很shit;
+
+## 第五章 设计与实现资源加载器，从Spring.xml解析和注册Bean对象

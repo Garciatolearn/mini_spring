@@ -1,7 +1,6 @@
-package sugar_spring_framework.factory;
+package sugar_spring_framework.beans.factory;
 
-import java.util.HashMap;
-import java.util.Map;
+import sugar_spring_framework.beans.BeanException;
 
 /**
  * @author Garcia

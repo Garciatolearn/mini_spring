@@ -1,7 +1,7 @@
-package sugar_spring_framework.factory.support;
+package sugar_spring_framework.beans.factory.support;
 
-import sugar_spring_framework.factory.BeanException;
-import sugar_spring_framework.factory.config.BeanDefinition;
+import sugar_spring_framework.beans.BeanException;
+import sugar_spring_framework.beans.factory.config.BeanDefinition;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

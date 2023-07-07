@@ -1,6 +1,4 @@
-package sugar_spring_framework.factory;
-
-import sugar_spring_framework.factory.config.BeanDefinition;
+package sugar_spring_framework.beans;
 
 public class BeanException extends RuntimeException{
 

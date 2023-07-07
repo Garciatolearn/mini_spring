@@ -1,14 +1,20 @@
 package bean;
 
 public class User {
-    int age;
-    String name;
+     private int age;
+     private String name;
+
+    private UserDao dao;
     public User(){
 
     }
     public User(String name,int age){
         this.name = name;
         this.age = age;
+    }
+
+    public UserDao getDao() {
+        return dao;
     }
 
     @Override
