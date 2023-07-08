@@ -10,6 +10,7 @@ public class Beanutil {
         for (Field field :
                 fields) {
             Class z =field.getType();
+
             if(field.getName().equals(fieldName)){
                 field.setAccessible(true);
                 field.set(bean,value);
