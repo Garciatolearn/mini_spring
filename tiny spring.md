@@ -154,3 +154,40 @@ DefaultListableBeanFactory 继承了 AbstractAutowireCapableBeanFactory 类，�
 ## 第五章 设计与实现资源加载器，从Spring.xml解析和注册Bean对象
 > 在我们实现的 Spring 框架中，每一个章节都会结合上一章节继续扩展功能，就像每一次产品都在加需求一样，那么在学习的过程中可以承上启下的对照和参考，看看每一个模块的添加都是用什么逻辑和技术细节实现的。这些内容的学习，会非常有利于你以后在设计和实现，自己承接产品需求时做的具体开发，代码的质量也会越来越高，越来越有扩展性和可维护性
 
+![img](https://bugstack.cn/assets/images/spring/spring-6-02.png)
+
+设计
+
+我们要做的就是将三种类型的资源解析器进行实现，将数据读取之后进行解析和注册到spring的容器当中。
+
+> - 资源加载器属于相对独立的部分，它位于 Spring 框架核心包下的IO实现内容，主要用于处理Class、本地和云环境中的文件信息。
+> - 当资源可以加载后，接下来就是解析和注册 Bean 到 Spring 中的操作，这部分实现需要和 DefaultListableBeanFactory 核心类结合起来，因为你所有的解析后的注册动作，都会把 Bean 定义信息放入到这个类中。
+> - 那么在实现的时候就设计好接口的实现层级关系，包括我们需要定义出 Bean 定义的读取接口 `BeanDefinitionReader` 以及做好对应的实现类，在实现类中完成对 Bean 对象的解析和注册
+
+![图 6-3](https://bugstack.cn/assets/images/spring/spring-6-03.png)
+
+资源解析器相对来说比较独立,我们将Loader和Reader进行分开实现,前者的功能为得到Resoure,resource作为接口规范了功能为获取Inputstream.
+
+最终在 DefaultResourceLoader 中做具体的调用 三大实现的不同Resource.
+
+后者作为读取解析inputstream的注册器来实现.那么在实现的时候就设计好接口的实现层级关系，包括我们需要定义出 Bean 定义的读取接口 `BeanDefinitionReader` 以及做好对应的实现类，在实现类中完成对 Bean 对象的解析和注册
+
+> - 接口：BeanDefinitionReader、抽象类：AbstractBeanDefinitionReader、实现类：XmlBeanDefinitionReader，这三部分内容主要是合理清晰的处理了资源读取后的注册 Bean 容器操作。*接口管定义，抽象类处理非接口功能外的注册Bean组件填充，最终实现类即可只关心具体的业务实现*
+
+接口负责要实现的功能,抽象类负责初始化接口实现功能所需的变量或者方法,实现类负责实现接口功能的业务.职责划分明确.
+
+
+
+👇另外本章节还参考 Spring 源码，做了相应接口的集成和实现的关系，虽然这些接口目前还并没有太大的作用，但随着框架的逐步完善，它们也会发挥作用。
+
+![图 6-4](https://bugstack.cn/assets/images/spring/spring-6-04.png)
+
+> - BeanFactory，已经存在的 Bean 工厂接口用于获取 Bean 对象，这次新增加了按照类型获取 Bean 的方法：`<T> T getBean(String name, Class<T> requiredType)`
+> - ListableBeanFactory，是一个扩展 Bean 工厂接口的接口，新增加了 `getBeansOfType`、`getBeanDefinitionNames()` 方法，在 Spring 源码中还有其他扩展方法。
+> - HierarchicalBeanFactory，在 Spring 源码中它提供了可以获取父类 BeanFactory 方法，属于是一种扩展工厂的层次子接口。*Sub-interface implemented by bean factories that can be part of a hierarchy.*
+> - AutowireCapableBeanFactory，是一个自动化处理Bean工厂配置的接口，目前案例工程中还没有做相应的实现，后续逐步完善。
+> - ConfigurableBeanFactory，可获取 BeanPostProcessor、BeanClassLoader等的一个配置化接口。
+> - ConfigurableListableBeanFactory，提供分析和修改Bean以及预先实例化的操作接口，不过目前只有一个 getBeanDefinition 方法。
+
+遵循接口提供方法,抽象类实现初始化
+可能是给下一章context预热吧..
