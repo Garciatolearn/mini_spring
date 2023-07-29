@@ -52,6 +52,14 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
         }
     }
 
+    @Override
+    public void loadBeanDefinitions(String... locations) throws BeanException {
+        for (String location:
+             locations) {
+            loadBeanDefinitions(location);
+        }
+    }
+
     protected void doLoadBeanDefinition(InputStream inputStream) throws IOException, SAXException, ClassNotFoundException {
         Document document = XmlUtils.readXml(inputStream);
         NodeList beans = document.getElementsByTagName("beans");
@@ -99,4 +107,5 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
         }
 
     }
+
 }

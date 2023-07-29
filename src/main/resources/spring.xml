@@ -8,5 +8,6 @@
         <property name="age" value="12"/>
         <property name="dao" ref="userDao"/>
     </bean>
-
+    <bean id="工厂processor" class="bean.TestBeanFactoryProcessor"/>
+    <bean id="beanProcessor" class="bean.TestBeanProcessor"/>
 </beans>

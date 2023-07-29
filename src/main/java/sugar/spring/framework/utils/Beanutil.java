@@ -5,7 +5,6 @@ import cn.hutool.core.convert.Convert;
 
 import java.lang.reflect.Field;
 import java.net.URL;
-
 public class Beanutil {
     public static void setFieldValue(Object bean, String fieldName, Object value) throws IllegalAccessException {
         Class<?> beanClass = bean.getClass();

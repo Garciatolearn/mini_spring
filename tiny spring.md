@@ -191,3 +191,46 @@ DefaultListableBeanFactory 继承了 AbstractAutowireCapableBeanFactory 类，�
 
 遵循接口提供方法,抽象类实现初始化
 可能是给下一章context预热吧..
+
+## 实现应用上下文
+
+在对容器中 Bean 的实例化过程添加扩展机制的同时，需要把目前关于 Spring.xml 初始化和加载策略进行优化
+
+> DefaultListableBeanFactory、XmlBeanDefinitionReader，是我们在目前 Spring 框架中对于服务功能测试的使用方式，它能很好的体现出 Spring 是如何对 xml 加载以及注册Bean对象的操作过程，但这种方式是面向 Spring 本身的，还不具备一定的扩展性。
+就像我们现在需要提供出一个可以在 Bean 初始化过程中，完成对 Bean 对象的扩展时，就很难做到自动化处理。所以我们要把 Bean 对象扩展机制功能和对 Spring 框架上下文的包装融合起来，对外提供完整的服务
+
+设计：
+
+![img](https://bugstack.cn/assets/images/spring/spring-7-02.png)
+
+> 满足于对 Bean 对象扩展的两个接口，其实也是 Spring 框架中非常具有重量级的两个接口：BeanFactoryPostProcessor 和 BeanPostProcessor，也几乎是大家在使用 Spring 框架额外新增开发自己组建需求的两个必备接口。
+BeanFactoryPostProcessor，是由 Spring 框架组建提供的容器扩展机制，允许在 Bean 对象注册后但未实例化之前，对 Bean 的定义信息 BeanDefinition 执行修改操作。
+BeanPostProcessor，也是 Spring 提供的扩展机制，不过 BeanPostProcessor 是在 Bean 对象实例化之后修改 Bean 对象，也可以替换 Bean 对象。这部分与后面要实现的 AOP 有着密切的关系。
+同时如果只是添加这两个接口，不做任何包装，那么对于使用者来说还是非常麻烦的。我们希望于开发 Spring 的上下文操作类，把相应的 XML 加载 、注册、实例化以及新增的修改和扩展都融合进去，让 Spring 可以自动扫描到我们的新增服务，便于用户使用。
+
+![图 7-3](https://bugstack.cn/assets/images/spring/spring-7-03.png)
+
+
+
+其中的BeanFactoryPostProcessor是在所有BeanDefinition加载完成之后，实例化Bean对象之前，提供修改BeanDefinition属性的机制，BeanPostProcessor是修改bean对象的拓展点，有着初始化前后执行的方法。
+
+applicationContext是context的中心接口，ConfigurableApplicationContext是提供了核心方法refresh。
+
+---
+
+- AbstractApplicationContext 继承 DefaultResourceLoader 是为了处理 `spring.xml` 配置资源的加载。
+- 之后是在 refresh() 定义实现过程，包括：
+  - 1. 创建 BeanFactory，并加载 BeanDefinition
+  - 1. 获取 BeanFactory
+  - 1. 在 Bean 实例化之前，执行 BeanFactoryPostProcessor (Invoke factory processors registered as beans in the context.)
+  - 1. BeanPostProcessor 需要提前于其他 Bean 对象实例化之前执行注册操作
+  - 1. 提前实例化单例Bean对象
+- 另外把定义出来的抽象方法，refreshBeanFactory()、getBeanFactory() 由后面的继承此抽象类的其他抽象类实现。
+
+---
+
+- 在 refreshBeanFactory() 中主要是获取了 `DefaultListableBeanFactory` 的实例化以及对资源配置的加载操作 `loadBeanDefinitions(beanFactory)`，在加载完成后即可完成对 spring.xml 配置文件中 Bean 对象的定义和注册，同时也包括实现了接口 BeanFactoryPostProcessor、BeanPostProcessor 的配置 Bean 信息。
+- 但此时资源加载还只是定义了一个抽象类方法 `loadBeanDefinitions(DefaultListableBeanFactory beanFactory)`，继续由其他抽象类继承实现。
+
+---
+

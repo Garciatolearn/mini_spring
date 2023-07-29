@@ -1,4 +1,4 @@
-package sugar.spring.framework.beans.factory.support;
+package sugar.spring.framework.beans.factory;
 
 import sugar.spring.framework.beans.BeanException;
 import sugar.spring.framework.beans.factory.BeanFactory;

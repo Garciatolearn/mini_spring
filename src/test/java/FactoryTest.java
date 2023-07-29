@@ -7,6 +7,7 @@ import sugar.spring.framework.beans.factory.config.BeanDefinition;
 import sugar.spring.framework.beans.factory.config.BeanReference;
 import sugar.spring.framework.beans.factory.support.DefaultListableBeanFactory;
 import sugar.spring.framework.beans.factory.support.xml.XmlBeanDefinitionReader;
+import sugar.spring.framework.context.support.ClassPathXmlApplicationContext;
 
 public class FactoryTest {
     @Test
@@ -30,5 +31,12 @@ public class FactoryTest {
         User user =(User) factory.getBean("user");
         System.out.println(user);
 
+    }
+
+    @Test
+    public void applicationContext(){
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath:spring.xml");
+        User user =(User) context.getBean("user");
+        System.out.println(user);
     }
 }

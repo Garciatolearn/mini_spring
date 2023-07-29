@@ -21,4 +21,12 @@ public class User {
     public String toString() {
         return "我是:" + name + ",年纪是:" + age;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
 }

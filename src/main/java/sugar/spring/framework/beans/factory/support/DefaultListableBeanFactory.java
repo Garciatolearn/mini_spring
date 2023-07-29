@@ -3,6 +3,7 @@ package sugar.spring.framework.beans.factory.support;
 import sugar.spring.framework.beans.BeanException;
 import sugar.spring.framework.beans.factory.config.BeanDefinition;
 import sugar.spring.framework.beans.factory.ConfigurableListableBeanFactory;
+import sugar.spring.framework.beans.factory.config.BeanPostProcessor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,12 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         }
         return beanDefinition;
     }
+
+    @Override
+    public void preInstantiateSingletons() throws BeanException {
+        beanDefinitionMap.keySet().forEach(this::getBean);
+    }
+
 
     @Override
     public void registerDefinition(String beanName, BeanDefinition beanDefinition) {
@@ -35,7 +42,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         Map<String,T> result = new HashMap<>();
         beanDefinitionMap.forEach((beanName,beanDefinition) ->{
             Class<?> clazz = beanDefinition.getBeanClass();
-            if(clazz == type){
+            if(type.isAssignableFrom(clazz)){
                 result.put(beanName, (T)getBean(beanName));
             }
         });
@@ -46,4 +53,5 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     public String[] getBeanDefinitionNames() throws BeanException {
         return beanDefinitionMap.keySet().toArray(new String[0]);
     }
+
 }
