@@ -69,4 +69,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
             factory.addBeanPostProcessor(beanPostProcessor);
         }
     }
+
+    @Override
+    public void registerShutDownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+    }
+
+    @Override
+    public void close() {
+        getBeanFactory().destroySingletons();
+    }
 }

@@ -1,6 +1,9 @@
 package bean;
 
-public class User {
+import sugar.spring.framework.beans.factory.DisposableBean;
+import sugar.spring.framework.beans.factory.InitializingBean;
+
+public class User  {
      private int age;
      private String name;
 
@@ -28,5 +31,15 @@ public class User {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+
+    public void destroy() throws Exception {
+        System.out.println("我被删除了");
+    }
+
+
+    public void initMethod() throws Exception {
+        System.out.println("我被初始化了");
     }
 }

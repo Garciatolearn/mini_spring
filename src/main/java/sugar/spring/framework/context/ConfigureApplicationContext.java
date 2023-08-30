@@ -4,4 +4,8 @@ import sugar.spring.framework.beans.BeanException;
 
 public interface ConfigureApplicationContext extends ApplicatonContext{
     void refresh() throws BeanException;
+
+    void registerShutDownHook();
+
+    void close();
 }

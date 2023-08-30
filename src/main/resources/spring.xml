@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans>
-
     <bean id="userDao" class="bean.UserDao"/>
-
-    <bean id="user" class="bean.User">
+    <bean id="user" class="bean.User" init-method="initMethod" destroy-method="destroy">
         <property name="name" value="么么哒米诺"/>
         <property name="age" value="12"/>
         <property name="dao" ref="userDao"/>

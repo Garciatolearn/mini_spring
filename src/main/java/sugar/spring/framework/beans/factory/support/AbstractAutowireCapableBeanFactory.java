@@ -3,6 +3,8 @@ package sugar.spring.framework.beans.factory.support;
 import sugar.spring.framework.beans.BeanException;
 import sugar.spring.framework.beans.PropertyValue;
 import sugar.spring.framework.beans.PropertyValues;
+import sugar.spring.framework.beans.factory.DisposableBean;
+import sugar.spring.framework.beans.factory.InitializingBean;
 import sugar.spring.framework.beans.factory.config.AutowireCapableBeanFactory;
 import sugar.spring.framework.beans.factory.config.BeanDefinition;
 import sugar.spring.framework.beans.factory.config.BeanPostProcessor;
@@ -10,6 +12,7 @@ import sugar.spring.framework.beans.factory.config.BeanReference;
 import sugar.spring.framework.utils.Beanutil;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 /**
  * @author Garcia
@@ -29,8 +32,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         } catch (BeanException e) {
             throw new BeanException("instantiation bean of failed : " + beanName);
         }
+
+        registerDisposableBeanIfNecessary(beanName, bean, beanDefinition);
+
         addSingletonBean(beanName, bean);
         return bean;
+    }
+
+    protected void registerDisposableBeanIfNecessary(String beanName, Object bean, BeanDefinition beanDefinition){
+        if(bean instanceof DisposableBean || !"".equals(beanDefinition.getDestroyMethodName()) && beanDefinition.getDestroyMethodName() != null){
+            addDisableBean(beanName,new DisposableAdapter(bean,beanName,beanDefinition));
+        }
     }
 
     protected Object createBeanInstance(BeanDefinition beanDefinition, String beanName, Object[] args) throws BeanException {
@@ -83,10 +95,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     @Override
     public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) throws BeanException {
         Object result = existingBean;
-        for (BeanPostProcessor processor:
-             getBeanPostProcessors()) {
-            Object current = processor.postProcessBeforeInitialization(result,beanName);
-            if(current == null){
+        for (BeanPostProcessor processor :
+                getBeanPostProcessors()) {
+            Object current = processor.postProcessBeforeInitialization(result, beanName);
+            if (current == null) {
                 return result;
             }
             result = current;
@@ -97,10 +109,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     @Override
     public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName) throws BeanException {
         Object result = existingBean;
-        for (BeanPostProcessor processor:
+        for (BeanPostProcessor processor :
                 getBeanPostProcessors()) {
-            Object current = processor.postProcessAfterInitialization(result,beanName);
-            if(current == null){
+            Object current = processor.postProcessAfterInitialization(result, beanName);
+            if (current == null) {
                 return result;
             }
             result = current;
@@ -110,12 +122,26 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
     private Object initializeBean(String beanName, Object bean, BeanDefinition beanDefinition) {
         Object wrappedBean = applyBeanPostProcessorsBeforeInitialization(bean, beanName);
-        invokeInitMethods(beanName,wrappedBean,beanDefinition);
+        try {
+            invokeInitMethods(beanName, wrappedBean, beanDefinition);
+        } catch (Exception e) {
+            throw new BeanException("Invocation of init method of bean[" + beanName + "] failed");
+        }
         wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
         return wrappedBean;
     }
 
-    private void invokeInitMethods(String beanName, Object wrappedBean, BeanDefinition beanDefinition) {
-
+    private void invokeInitMethods(String beanName, Object wrappedBean, BeanDefinition beanDefinition) throws Exception {
+        if (wrappedBean instanceof InitializingBean) {
+            ((InitializingBean) wrappedBean).afterPropertiesSet();
+        }
+        String initMethodName = beanDefinition.getInitMethodName();
+        if (!"".equals(initMethodName)) {
+            Method initMethod = beanDefinition.getBeanClass().getMethod(initMethodName);
+            if (null == initMethodName) {
+                throw new BeanException("Could not find an init method named '" + initMethodName + "' on bean with name '" + beanName + "'");
+            }
+            initMethod.invoke(wrappedBean);
+        }
     }
 }

@@ -38,5 +38,7 @@ public class FactoryTest {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath:spring.xml");
         User user =(User) context.getBean("user");
         System.out.println(user);
+        context.close();
+        System.out.println("测试");
     }
 }

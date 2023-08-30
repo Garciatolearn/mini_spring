@@ -7,4 +7,6 @@ public interface ConfigurableBeanFactory extends HierarchialBeanFactory {
     String SCOPE_SINGLETON = "singleton";
 
     void addBeanPostProcessor(BeanPostProcessor beanPostProcessor);
+
+    void destroySingletons();
 }
